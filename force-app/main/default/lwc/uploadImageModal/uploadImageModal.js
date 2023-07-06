@@ -9,8 +9,9 @@ import LightningModal from 'lightning/modal';
 export default class UploadImageModal extends LightningModal {
     @api label; // label is defined in component that opens this modal
     @api contentDocumentId; // Content Document Id of the existing photo (if there is one)
-    @api croppieImageConfig;
-    @api imageMetadata;
+    @api croppieConfig; // config (options) for croppie component (shape and size of cropper)
+    @api croppieImageConfig; // configuration of the preloaded image within Croppie (this is optional)
+    @api imageMetadata; // metadata of the preloaded image if one is provided (this is optional)
     
     handleCancel() {
         // close the modal
