@@ -1,3 +1,23 @@
 <template>
-    
+    <lightning-card title="Profile Picture">
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" variant="brand"></lightning-spinner>
+        </template>
+        <div slot="actions">
+            <lightning-button-icon icon-name="utility:upload" aria-haspopup="dialog" onclick={handleUpload}></lightning-button-icon>
+        </div>
+        <!-- body -->
+        <div class="slds-grid slds-wrap">
+            <template lwc:if={hasProfileImage}>
+                <div class="slds-col slds-size_1-of-1 slds-align_absolute-center slds-p-around_xxx-small">
+                    <img src={profileImageSrc}></img>
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="slds-col slds-size_1-of-1 slds-align_absolute-center slds-p-around_small">
+                    <lightning-icon icon-name="action:user" alternative-text="Home Icon" size="medium"></lightning-icon>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
 </template>
