@@ -1,0 +1,14 @@
+<template>
+    <lightning-modal-header label={label}></lightning-modal-header>
+    <lightning-modal-body>
+        <c-image-cropper 
+            image-id={contentDocumentId} 
+            croppie-config={croppieConfig} 
+            image-config={imageConfig} 
+            onsave={handleSave}
+        ></c-image-cropper>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button label="Cancel" title="Cancel" alternative-text="Cancel" onclick={handleCancel}></lightning-button>
+    </lightning-modal-footer>
+</template>
