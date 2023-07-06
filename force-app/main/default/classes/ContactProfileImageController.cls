@@ -20,6 +20,7 @@ public with sharing class ContactProfileImageController {
 
         // nullify image fields on contact
         con.ProfileImageDocumentId__c = null;
+        con.ProfileImageMetadata__c = null;
         return con;
     }
     
@@ -41,12 +42,12 @@ public with sharing class ContactProfileImageController {
             // get contact record
             Contact con = [SELECT Id, Name, ProfileImageDocumentId__c FROM Contact WHERE Id =: recordId LIMIT 1];
             deleteProfileImage(con); // delete previous image
-            
-            System.debug(file);
-            Map<String,Object> imgFileMap = (Map<String,Object>) JSON.deserializeUntyped(file);
-            System.debug(imgFileMap);
 
-            if (base64Image != null) { // check if new image is provided
+            if (base64Image != null && file != null) { // check if new image is provided
+                System.debug(file);
+                Map<String,Object> imgFileMap = (Map<String,Object>) JSON.deserializeUntyped(file);
+                System.debug(imgFileMap);
+
                 // save new image
                 ContentVersion cv = new ContentVersion();
                 cv.VersionData = EncodingUtil.base64Decode(base64Image);
@@ -66,6 +67,7 @@ public with sharing class ContactProfileImageController {
                 insert cdl;
 
                 con.ProfileImageDocumentId__c = contentDocumentId;
+                con.ProfileImageMetadata__c = file;
             }
 
             update con; // save contact record
