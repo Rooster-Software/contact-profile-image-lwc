@@ -15,7 +15,7 @@
             <div class="slds-col slds-size_1-of-1">
                 <div class="slds-grid slds-wrap">
                     <div class="slds-col slds-size_1-of-1 slds-p-around_small slds-align_absolute-center">
-                        <template lwc:if={imageConfig}>
+                        <template lwc:if={imageMetadata}>
                             <lightning-icon 
                                 icon-name="doctype:image" 
                                 size="large" 
@@ -23,7 +23,7 @@
                                 class="slds-m-right_large"
                             ></lightning-icon>
                             <div class="image-info">
-                                <h3 class="slds-truncate slds-m-bottom_none">{imageConfig.name}</h3>
+                                <h3 class="slds-truncate slds-m-bottom_none">{imageMetadata.name}</h3>
                                 <p>{fileSize} Mb</p>
                             </div>
                         </template>

@@ -18,8 +18,8 @@ export default class ImageCropper extends LightningElement {
     originalFileData; // copy of the original base64 encoded image file before manipulation with croppie
     _imageId; // variable used to store the Content Document Id of the existing image (if one exists)
 
-    @api croppieConfig;
-    @api imageConfig; // this is the preexisting or newly loaded image file
+    @api croppieImageConfig;
+    @api imageMetadata; // this is the preexisting or newly loaded image file
 
     // imageId is the Content Document Id of the existing photo (if there is one)
     @api 
@@ -33,12 +33,12 @@ export default class ImageCropper extends LightningElement {
 
     // return the file size in mb
     get fileSize() {
-        return this.imageConfig.size / 1000000;
+        return this.imageMetadata.size / 1000000;
     }
 
     // return true if there is no file loaded
     get isFileNull() {
-        return this.imageConfig ? false : true;
+        return this.imageMetadata ? false : true;
     }
 
     connectedCallback() {
@@ -73,15 +73,15 @@ export default class ImageCropper extends LightningElement {
         this.croppieFileReader.destroy();
         
         // set file value to null
-        this.imageConfig = null;
+        this.imageMetadata = null;
 
         this.disableDelete = true; // disable delete button
         this.disableSave = false; // enable the save button in case the user wants to save after removing the preexisting image
     }
 
     handleFileChange(event) {
-        this.imageConfig = event.target.files[0];
-        console.log(this.imageConfig);
+        this.imageMetadata = event.target.files[0];
+        console.log(this.imageMetadata);
         var reader = new FileReader();
         reader.onload = () => {
             this.initializeCroppie();
@@ -96,7 +96,7 @@ export default class ImageCropper extends LightningElement {
             });
         };
 
-        reader.readAsDataURL(this.imageConfig);
+        reader.readAsDataURL(this.imageMetadata);
 
         this.disableDelete = false; // enable delete button
         this.disableSave = false; // enable save button
@@ -105,9 +105,9 @@ export default class ImageCropper extends LightningElement {
     // handle saving of the cropped image
     handleSave(event) {
         // get image result from croppie
-        let croppieConfig = this.croppieFileReader.get();
+        let croppieImageConfig = this.croppieFileReader.get();
         console.log('croppie config');
-        console.log(JSON.stringify(croppieConfig));
+        console.log(JSON.stringify(croppieImageConfig));
         
         this.croppieFileReader.result({
             type : 'base64',
@@ -118,9 +118,9 @@ export default class ImageCropper extends LightningElement {
 
             // pass image to parent
             this.dispatchEvent(new CustomEvent('save', { detail : {
-                file            : this.imageConfig, // the file object from the lightning-input (type='file') component
+                file            : this.imageMetadata, // the file object from the lightning-input (type='file') component
                 originalImage   : this.originalFileData, // the original image encoded in base64
-                croppieConfig   : croppieConfig, // these are the croppie configurations applied to the originalImage
+                croppieImageConfig   : croppieImageConfig, // these are the croppie configurations applied to the originalImage
                 croppedImage    : croppieResult.split(',')[1] // cropped image after croppie manipulations applied to originalImage, encoded in base64
             }}));
         }).catch(error => {
@@ -148,9 +148,12 @@ export default class ImageCropper extends LightningElement {
     loadImage() {
         // get raw file data of image provided to component
         getContentDocumentImage({ recordId : this._imageId }).then(result => {
+            console.log(this.imageMetadata);
             this.originalFileData = result; // this is the raw, base64 encoded image string saved in the ContentDocument in Salesforce
-            let fileUrl = 'data:' + this.imageConfig.type + ';base64,' + this.originalFileData;
+            let fileUrl = 'data:' + this.imageMetadata.type + ';base64,' + this.originalFileData;
 
+            console.log(fileUrl);
+            console.log(this.croppieImageConfig);
             // bind the image to Croppie
             if (this.croppieFileReader) { // if croppie has been initialized, destroy it and create a new one
                 this.croppieFileReader.destroy();
@@ -160,9 +163,9 @@ export default class ImageCropper extends LightningElement {
                 this.initializeCroppie();
                 this.croppieFileReader.bind({
                     url         : fileUrl, //'/sfc/servlet.shepherd/document/download/' + this._imageId,
-                    points      : this.croppieConfig.points,
-                    zoom        : this.croppieConfig.zoom,
-                    orientation : this.croppieConfig.orientation
+                    points      : this.croppieImageConfig.points,
+                    zoom        : this.croppieImageConfig.zoom,
+                    orientation : this.croppieImageConfig.orientation
                 });
                 this.disableDelete = false;
                 this.disableSave = false;
