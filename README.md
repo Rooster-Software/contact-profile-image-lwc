@@ -33,7 +33,7 @@ If implementing in a different context or with a different use case, you will li
 
 - Contact.ProfileImageDocumentId__c - This field contains the ContentDocument Id of the ContentDocument record containing the cropped and scaled profile image.
 - Contact.ProfileImageMetadata__c - This field stores the metadata of the image file being saved. 
-    - PLEASE NOTE that the size attribute may be incorrect as the code is currently using the metadata from the original file loaded (and not retriveing/calculating the file size after cropping by Croppie). This may be a future enhancement
+    - **PLEASE NOTE** that the size attribute may be incorrect as the code is currently using the metadata from the original file loaded (and not retriveing/calculating the file size after cropping by Croppie). This may be a future enhancement.
 
 ### Static Resources
 
