@@ -33,8 +33,14 @@ If implementing in a different context or with a different use case, you will li
 
 - Contact.ProfileImageDocumentId__c - This field contains the ContentDocument Id of the ContentDocument record containing the cropped and scaled profile image.
 
+### Static Resources
+
+- croppieCss - This is the CSS file for styling the Croppie elements. Reference the [Croppie GitHub](https://github.com/foliotek/croppie) for the latest version.
+- croppieJs - The Croppie JS file containing the Croppie functions. Reference the [Croppie GitHub](https://github.com/foliotek/croppie) for the latest version.
+
 ## Notes
 
+- Reference Croppie's documentation (https://foliotek.github.io/Croppie/) for guidance on how to use Croppie.
 - This has not been thoroughly tested on mobile
 - This implementation does not save the original version of the image to Salesforce. Only the cropped and scaled image is saved. It is, however, possible to save the original version of the image should that be required.
 - Rigorous Apex Testing is advised
