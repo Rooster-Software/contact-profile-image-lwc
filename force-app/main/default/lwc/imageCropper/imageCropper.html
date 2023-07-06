@@ -1,0 +1,65 @@
+<template>
+    <template lwc:if={croppieLoaded}>
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" variant="brand"></lightning-spinner>
+        </template>
+        <div class="slds-grid slds-wrap slds-grid_vertical-align-center slds-p-horizontal_xx-large slds-m-horizontal_xx-large">
+            <template lwc:if={isFileNull}>
+                <div class="slds-col slds-size_1-of-1 slds-p-around_x-small slds-align_absolute-center">
+                    <lightning-avatar src="" fallback-icon-name="custom:custom107" size="large" alternative-text="Home Icon" variant="circle"></lightning-avatar>
+                </div>    
+            </template>
+            <div class="slds-col slds-size_1-of-1 slds-p-around_x-small slds-align_absolute-center">
+                <div data-id="croppie" class="image-cropping"></div>
+            </div>
+            <div class="slds-col slds-size_1-of-1">
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-p-around_small slds-align_absolute-center">
+                        <template lwc:if={imageConfig}>
+                            <lightning-icon 
+                                icon-name="doctype:image" 
+                                size="large" 
+                                alternative-text="Upload Picture" 
+                                class="slds-m-right_large"
+                            ></lightning-icon>
+                            <div class="image-info">
+                                <h3 class="slds-truncate slds-m-bottom_none">{imageConfig.name}</h3>
+                                <p>{fileSize} Mb</p>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <lightning-input
+                                type="file"
+                                label="Upload Image"
+                                accept="image/png, image/jpg, image/jpeg"
+                                onchange={handleFileChange}
+                                variant="label-hidden"
+                            ></lightning-input>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-p-around_small slds-border_top slds-align_absolute-center">
+                        <lightning-button-group>
+                            <lightning-button 
+                                icon-name="utility:delete" 
+                                label="Remove Image" 
+                                alternative-text="Delete" 
+                                title="Delete"
+                                disabled={disableDelete}
+                                onclick={handleDelete}
+                            ></lightning-button>
+                            <lightning-button 
+                                icon-name="utility:save" 
+                                variant="brand" 
+                                label="Save Image" 
+                                alternative-text="Save" 
+                                title="Save"
+                                disabled={disableSave}
+                                onclick={handleSave}
+                            ></lightning-button>
+                        </lightning-button-group>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>
