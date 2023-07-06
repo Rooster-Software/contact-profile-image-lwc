@@ -1,4 +1,4 @@
-# Image Cropper LWC
+# Contact Profile Image LWC
 
 Upload, crop, and save a profile image to a Contact record in Salesforce using this package. This repo offers a framework that may be altered to allow an org to load/crop images in other contexts. 
 
