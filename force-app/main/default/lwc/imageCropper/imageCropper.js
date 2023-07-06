@@ -18,8 +18,13 @@ export default class ImageCropper extends LightningElement {
     originalFileData; // copy of the original base64 encoded image file before manipulation with croppie
     _imageId; // variable used to store the Content Document Id of the existing image (if one exists)
 
-    @api croppieImageConfig;
-    @api imageMetadata; // this is the preexisting or newly loaded image file
+    @api croppieConfig; // this is configuration (options) for the Croppie component: shape and size
+                        // Here is an example: {viewport:{width : 300,height : 300,type : 'square'},boundary:{width:400,height:400},showZoomer : true,}
+                        // Available values for options can be found here (under Documentation > Options): https://foliotek.github.io/Croppie/
+    @api croppieImageConfig;    // image configuration of the image being rendered by Croppie. 
+                                // this value is retrieved from Croppie after cropping and scaling is complete
+                                // this configuration may be provided to a new Croppie instance if rendering a previously cropped image
+    @api imageMetadata; // this is the preexisting or newly loaded image file metadata
 
     // imageId is the Content Document Id of the existing photo (if there is one)
     @api 
@@ -71,6 +76,7 @@ export default class ImageCropper extends LightningElement {
     handleDelete(event) {
         // destroy croppie instance
         this.croppieFileReader.destroy();
+        this.croppieFileReader = null;
         
         // set file value to null
         this.imageMetadata = null;
@@ -81,13 +87,9 @@ export default class ImageCropper extends LightningElement {
 
     handleFileChange(event) {
         this.imageMetadata = event.target.files[0];
-        console.log(this.imageMetadata);
         var reader = new FileReader();
         reader.onload = () => {
             this.initializeCroppie();
-
-            console.log('file url...');
-            console.log(reader.result);
 
             this.originalFileData = reader.result.split(',')[1]; // save the original file
 
@@ -104,69 +106,70 @@ export default class ImageCropper extends LightningElement {
 
     // handle saving of the cropped image
     handleSave(event) {
-        // get image result from croppie
-        let croppieImageConfig = this.croppieFileReader.get();
-        console.log('croppie config');
-        console.log(JSON.stringify(croppieImageConfig));
-        
-        this.croppieFileReader.result({
-            type : 'base64',
-            circle : false
-        }).then(croppieResult => {
-            // destroy Croppie
-            this.croppieFileReader.destroy();
+        if (this.croppieFileReader) {
+            // get image result from croppie
+            let croppieImageConfig = this.croppieFileReader.get();
+            
+            this.croppieFileReader.result({
+                type : 'base64',
+            }).then(croppieResult => {
+                // destroy Croppie
+                this.croppieFileReader.destroy();
+                this.croppieFileReader = null;
 
-            // pass image to parent
+                // pass image to parent
+                this.dispatchEvent(new CustomEvent('save', { detail : {
+                    file            : this.imageMetadata, // the file object from the lightning-input (type='file') component
+                    originalImage   : this.originalFileData, // the original image encoded in base64
+                    croppieImageConfig   : croppieImageConfig, // these are the croppie configurations applied to the originalImage
+                    croppedImage    : croppieResult.split(',')[1] // cropped image after croppie manipulations applied to originalImage, encoded in base64
+                }}));
+            }).catch(error => {
+                console.log('croppie result error...');
+                console.log(error);
+            });
+        } else {
+            // pass null image to parent
             this.dispatchEvent(new CustomEvent('save', { detail : {
                 file            : this.imageMetadata, // the file object from the lightning-input (type='file') component
-                originalImage   : this.originalFileData, // the original image encoded in base64
-                croppieImageConfig   : croppieImageConfig, // these are the croppie configurations applied to the originalImage
-                croppedImage    : croppieResult.split(',')[1] // cropped image after croppie manipulations applied to originalImage, encoded in base64
+                originalImage   : null, // the original image encoded in base64
+                croppieImageConfig   : null, // these are the croppie configurations applied to the originalImage
+                croppedImage    : null // cropped image after croppie manipulations applied to originalImage, encoded in base64
             }}));
-        }).catch(error => {
-            console.log('croppie result error...');
-            console.log(error);
-        });
+        }
     }
 
     initializeCroppie() {
-        this.croppieFileReader = new Croppie(this.template.querySelector('[data-id="croppie"]'), {
-            viewport : {
-                width : 300,
-                height : 300,
-                type : 'square'
-            },
-            boundary : {
-                width : 400,
-                height : 400
-            },
-            showZoomer : true,
-        });
+        this.croppieFileReader = new Croppie(this.template.querySelector('[data-id="croppie"]'), this.croppieConfig);
     }
 
     // load existing image stored in ContentDocument in Salesforce and bind image to Croppie
     loadImage() {
         // get raw file data of image provided to component
         getContentDocumentImage({ recordId : this._imageId }).then(result => {
-            console.log(this.imageMetadata);
             this.originalFileData = result; // this is the raw, base64 encoded image string saved in the ContentDocument in Salesforce
             let fileUrl = 'data:' + this.imageMetadata.type + ';base64,' + this.originalFileData;
 
-            console.log(fileUrl);
-            console.log(this.croppieImageConfig);
             // bind the image to Croppie
             if (this.croppieFileReader) { // if croppie has been initialized, destroy it and create a new one
                 this.croppieFileReader.destroy();
+                this.croppieFileReader = null;
             }
 
             setTimeout(() => {
                 this.initializeCroppie();
-                this.croppieFileReader.bind({
-                    url         : fileUrl, //'/sfc/servlet.shepherd/document/download/' + this._imageId,
-                    points      : this.croppieImageConfig.points,
-                    zoom        : this.croppieImageConfig.zoom,
-                    orientation : this.croppieImageConfig.orientation
-                });
+                if (this.croppieImageConfig) {
+                    this.croppieFileReader.bind({
+                        url         : fileUrl, //'/sfc/servlet.shepherd/document/download/' + this._imageId,
+                        points      : this.croppieImageConfig.points,
+                        zoom        : this.croppieImageConfig.zoom,
+                        orientation : this.croppieImageConfig.orientation
+                    });
+                } else {
+                    this.croppieFileReader.bind({
+                        url : fileUrl
+                    });
+                }
                 this.disableDelete = false;
                 this.disableSave = false;
                 this.isLoading = false;
