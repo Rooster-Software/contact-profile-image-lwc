@@ -7,9 +7,11 @@
     </types>
     <types>
         <members>Contact.ProfileImageDocumentId__c</members>
+        <members>Contact.ProfileImageMetadata__c</members>
         <name>CustomField</name>
     </types>
     <types>
+        <members>contactProfileImage</members>
         <members>imageCropper</members>
         <members>uploadImageModal</members>
         <name>LightningComponentBundle</name>
