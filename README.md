@@ -51,3 +51,7 @@ If implementing in a different context or with a different use case, you will li
 - Tests have not been developed for LWCs
 - Field Level Security needs to be defined in any orgs installing this code
 - Rigorous testing of permissions and usability with different personas is advised
+
+## About
+
+*contact-profile-image-lwc* was developed by Loran Saggu through [Rooster Software LLC](rooster-software.com)
